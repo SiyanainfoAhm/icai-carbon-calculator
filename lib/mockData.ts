@@ -284,6 +284,19 @@ function createDocuments(): UploadedDocument[] {
 }
 
 export function generateSeedData(): AppData {
+  if (cachedSeedData) return cachedSeedData;
+  cachedSeedData = buildSeedData();
+  return cachedSeedData;
+}
+
+/** Clear cached seed so reset generates a fresh dataset. */
+export function clearSeedCache(): void {
+  cachedSeedData = null;
+}
+
+let cachedSeedData: AppData | null = null;
+
+function buildSeedData(): AppData {
   const branches = generateBranches();
   const regions: Region[] = REGIONS_DATA.map((r) => {
     const regionBranches = branches.filter((b) => b.regionId === r.id);

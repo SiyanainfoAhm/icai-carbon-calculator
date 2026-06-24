@@ -1,9 +1,15 @@
-import type { AppData, Session } from "./types";
-import { generateSeedData } from "./mockData";
+import type { AppData, Session, UISettings } from "./types";
+import { generateSeedData, clearSeedCache } from "./mockData";
 
 const STORAGE_KEY = "icai_carbon_app_data";
 const SESSION_KEY = "icai_carbon_session";
 const STORAGE_VERSION = 1;
+
+const DEFAULT_UI_SETTINGS: UISettings = {
+  selectedDesign: "modern_esg",
+  portalName: "ICAI Carbon Emission Calculator",
+  maintenanceMode: false,
+};
 
 export function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -13,6 +19,7 @@ function mergeArray<T>(partial: T[] | undefined, seed: T[]): T[] {
   return partial !== undefined ? partial : seed;
 }
 
+/** Full merge with seed — only for first-time load or incomplete stored data. */
 function mergeWithSeed(partial: Partial<AppData>): AppData {
   const seed = generateSeedData();
   return {
@@ -36,16 +43,59 @@ function mergeWithSeed(partial: Partial<AppData>): AppData {
   };
 }
 
+function hasStoredCoreData(parsed: Partial<AppData>): boolean {
+  return Array.isArray(parsed.users) && parsed.users.length > 0 && Array.isArray(parsed.branches);
+}
+
+function hasPartialStoredData(parsed: Partial<AppData>): boolean {
+  return Array.isArray(parsed.users) || Array.isArray(parsed.branches);
+}
+
+/** Fast path: reuse stored data without regenerating 185+ branch seed records. */
+function normalizeStoredData(partial: Partial<AppData>): AppData {
+  return {
+    users: partial.users ?? [],
+    entities: partial.entities ?? [],
+    regions: partial.regions ?? [],
+    branches: partial.branches ?? [],
+    caFirms: partial.caFirms ?? [],
+    emissionCategories: partial.emissionCategories ?? [],
+    emissionFactors: partial.emissionFactors ?? [],
+    emissionFactorVersions: partial.emissionFactorVersions ?? [],
+    calculations: partial.calculations ?? [],
+    reports: partial.reports ?? [],
+    recommendations: partial.recommendations ?? [],
+    queries: partial.queries ?? [],
+    queryReplies: partial.queryReplies ?? [],
+    documents: partial.documents ?? [],
+    auditLogs: partial.auditLogs ?? [],
+    monthlyEmissions: partial.monthlyEmissions ?? [],
+    uiSettings: { ...DEFAULT_UI_SETTINGS, ...partial.uiSettings },
+  };
+}
+
 export function loadAppData(): AppData {
   if (!isBrowser()) return generateSeedData();
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
-      const parsed = JSON.parse(raw) as Partial<AppData>;
-      return mergeWithSeed(parsed);
+      const parsed = JSON.parse(raw) as Partial<AppData> & { _version?: number };
+      if (hasStoredCoreData(parsed)) {
+        return normalizeStoredData(parsed);
+      }
+      if (hasPartialStoredData(parsed)) {
+        return mergeWithSeed(parsed);
+      }
     }
-  } catch {
-    // fall through to seed
+  } catch (err) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("[ICAI] localStorage parse failed, reseeding:", err);
+    }
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // ignore
+    }
   }
   const seed = generateSeedData();
   saveAppData(seed);
@@ -58,6 +108,7 @@ export function saveAppData(data: AppData): void {
 }
 
 export function resetAppData(): AppData {
+  clearSeedCache();
   const seed = generateSeedData();
   saveAppData(seed);
   return seed;

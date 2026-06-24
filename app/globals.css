@@ -94,3 +94,93 @@
     @apply font-sans;
   }
 }
+
+/* Landing page animations */
+@keyframes landing-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes landing-blob-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(24px, -16px) scale(1.04); }
+  66% { transform: translate(-16px, 12px) scale(0.97); }
+}
+
+@keyframes landing-glow-pulse {
+  0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.08); }
+}
+
+@keyframes landing-fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes landing-flow-pulse {
+  0%, 100% { opacity: 0.5; transform: translateX(0); }
+  50% { opacity: 1; transform: translateX(4px); }
+}
+
+.landing-grid-pattern {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.landing-blob {
+  animation: landing-blob-drift 18s ease-in-out infinite;
+}
+
+.landing-blob-2 { animation-delay: -6s; }
+.landing-blob-3 { animation-delay: -12s; }
+
+.landing-glow {
+  animation: landing-glow-pulse 10s ease-in-out infinite;
+}
+
+.landing-kpi-float {
+  animation: landing-float 5s ease-in-out infinite;
+}
+
+.landing-fade-in {
+  animation: landing-fade-up 0.8s ease-out both;
+}
+
+.landing-fade-in-delay {
+  animation-delay: 0.2s;
+}
+
+.landing-section-heading {
+  animation: landing-fade-up 0.7s ease-out both;
+}
+
+.landing-flow-arrow {
+  animation: landing-flow-pulse 2s ease-in-out infinite;
+}
+
+.landing-feature-card:hover {
+  box-shadow: 0 20px 40px -12px rgba(13, 148, 136, 0.15);
+}
+
+.landing-hierarchy-card {
+  animation: landing-fade-up 0.6s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-blob,
+  .landing-glow,
+  .landing-kpi-float,
+  .landing-fade-in,
+  .landing-fade-in-delay,
+  .landing-section-heading,
+  .landing-flow-arrow,
+  .landing-hierarchy-card,
+  .landing-carousel-slide,
+  .landing-progress-bar,
+  .landing-feature-card {
+    animation: none !important;
+    transition: none !important;
+  }
+}

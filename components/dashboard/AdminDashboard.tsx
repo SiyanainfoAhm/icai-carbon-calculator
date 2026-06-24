@@ -9,10 +9,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
+function countOpenQueries(queries: { status: string }[]): number {
+  return queries.filter((q) => q.status === "Open" || q.status === "In Progress").length;
+}
+
 export function AdminDashboard() {
   const data = useAppStore((s) => s.data);
+  const queries = data.queries ?? [];
+  const openQueries = countOpenQueries(queries);
   const activeFactors = data.emissionFactors.filter((f) => f.status === "active" && f.isCurrent);
   const lastFactorUpdate = data.emissionFactorVersions[0];
+  const recentQueries = [...queries]
+    .sort((a, b) => new Date(b.submittedDate).getTime() - new Date(a.submittedDate).getTime())
+    .slice(0, 5);
 
   return (
     <div className="space-y-6">
@@ -31,7 +40,7 @@ export function AdminDashboard() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard title="Reports" value={data.reports.length} icon={FileText} />
-        <KpiCard title="Open Queries" value={data.queries.filter((q) => ["Open", "In Progress"].includes(q.status)).length} icon={MessageSquare} />
+        <KpiCard title="Open Queries" value={openQueries} subtitle="Open + In Progress" icon={MessageSquare} />
         <KpiCard title="Active Factors" value={activeFactors.length} icon={FlaskConical} />
         <KpiCard title="Uptime Target" value="99.9%" subtitle="Performance monitoring" icon={Activity} />
       </div>
@@ -57,17 +66,28 @@ export function AdminDashboard() {
           </CardContent>
         </Card>
         <Card className="border-0 shadow-sm">
-          <CardHeader><CardTitle className="text-base">Recent Queries</CardTitle></CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-base">Recent Queries</CardTitle>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/admin/queries">View All</Link>
+            </Button>
+          </CardHeader>
           <CardContent>
-            <DataTable
-              data={data.queries.slice(0, 10) as unknown as Record<string, unknown>[]}
-              columns={[
-                { key: "queryNumber", header: "ID" },
-                { key: "subject", header: "Subject" },
-                { key: "status", header: "Status", render: (q) => <StatusBadge status={(q as { status: string }).status} /> },
-              ]}
-              pageSize={5}
-            />
+            {recentQueries.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No helpdesk queries submitted yet.</p>
+            ) : (
+              <DataTable
+                data={recentQueries as unknown as Record<string, unknown>[]}
+                columns={[
+                  { key: "subject", header: "Subject" },
+                  { key: "userName", header: "User" },
+                  { key: "entityName", header: "Entity" },
+                  { key: "status", header: "Status", render: (q) => <StatusBadge status={(q as { status: string }).status} /> },
+                  { key: "submittedDate", header: "Date", render: (q) => new Date((q as { submittedDate: string }).submittedDate).toLocaleDateString() },
+                ]}
+                pageSize={5}
+              />
+            )}
           </CardContent>
         </Card>
       </div>
@@ -76,6 +96,7 @@ export function AdminDashboard() {
         <CardHeader><CardTitle className="text-base">Admin Quick Actions</CardTitle></CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           {[
+            { label: "Manage Queries", href: "/admin/queries" },
             { label: "Manage Users", href: "/admin/users" },
             { label: "Emission Factors", href: "/admin/emission-factors" },
             { label: "Audit Logs", href: "/admin/audit-logs" },

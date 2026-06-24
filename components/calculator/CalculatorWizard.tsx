@@ -296,11 +296,33 @@ function ResultsPanel({ calcId, items, totals, reportingPeriod }: {
   reportingPeriod: string;
 }) {
   const generateReport = useAppStore((s) => s.generateReport);
+  const data = useAppStore((s) => s.data);
   const router = useRouter();
+  const [generating, setGenerating] = useState<"PDF" | "Excel" | null>(null);
 
-  const handleReport = (format: "PDF" | "Excel") => {
-    const report = generateReport(calcId, format);
-    if (report) toast.success(`${format} report generated`);
+  const calculation = data.calculations.find((c) => c.id === calcId);
+
+  const handleReport = async (format: "PDF" | "Excel") => {
+    if (generating) return;
+    setGenerating(format);
+    try {
+      await new Promise((r) => setTimeout(r, 300));
+      const report = generateReport(calcId, format);
+      if (report) {
+        toast.success(`${format} report generated successfully`, {
+          description: `Report ${report.id} saved. View it in Reports.`,
+          action: { label: "Open Reports", onClick: () => router.push("/reports") },
+        });
+      } else if (!calculation) {
+        toast.error("Calculation not found. Please click Calculate again.");
+      } else if (!calculation.lineItems?.length) {
+        toast.error("No activity data in calculation. Complete the wizard first.");
+      } else {
+        toast.error("Failed to generate report. Please try again.");
+      }
+    } finally {
+      setGenerating(null);
+    }
   };
 
   return (
@@ -308,19 +330,33 @@ function ResultsPanel({ calcId, items, totals, reportingPeriod }: {
       <Card className="bg-gradient-to-br from-teal-600 to-emerald-700 text-white border-0">
         <CardContent className="pt-6 text-center">
           <p className="text-teal-100">Total Carbon Footprint</p>
-          <p className="text-4xl font-bold mt-1">{totals.total.toLocaleString()} kg CO2e</p>
+          <p className="text-4xl font-bold mt-1">{totals.total.toLocaleString()} kg CO₂e</p>
           <p className="text-teal-200 text-sm mt-1">{reportingPeriod}</p>
         </CardContent>
       </Card>
-      <div className="grid grid-cols-3 gap-4">
-        <Card><CardContent className="pt-4 text-center"><p className="text-xs text-muted-foreground">Scope 1</p><p className="text-xl font-bold">{totals.scope1.toFixed(0)}</p></CardContent></Card>
-        <Card><CardContent className="pt-4 text-center"><p className="text-xs text-muted-foreground">Scope 2</p><p className="text-xl font-bold">{totals.scope2.toFixed(0)}</p></CardContent></Card>
-        <Card><CardContent className="pt-4 text-center"><p className="text-xs text-muted-foreground">Scope 3</p><p className="text-xl font-bold">{totals.scope3.toFixed(0)}</p></CardContent></Card>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card><CardContent className="pt-4 text-center"><p className="text-xs text-muted-foreground">Scope 1</p><p className="text-xl font-bold">{totals.scope1.toFixed(0)} kg</p></CardContent></Card>
+        <Card><CardContent className="pt-4 text-center"><p className="text-xs text-muted-foreground">Scope 2</p><p className="text-xl font-bold">{totals.scope2.toFixed(0)} kg</p></CardContent></Card>
+        <Card><CardContent className="pt-4 text-center"><p className="text-xs text-muted-foreground">Scope 3</p><p className="text-xl font-bold">{totals.scope3.toFixed(0)} kg</p></CardContent></Card>
       </div>
       <div className="flex flex-wrap gap-2">
-        <Button className="bg-teal-600" onClick={() => handleReport("PDF")}>Generate PDF Report</Button>
-        <Button variant="outline" onClick={() => handleReport("Excel")}>Generate Excel Report</Button>
+        <Button
+          className="bg-teal-600 hover:bg-teal-700 text-white"
+          disabled={!!generating}
+          onClick={() => handleReport("PDF")}
+        >
+          {generating === "PDF" ? "Generating PDF…" : "Generate PDF Report"}
+        </Button>
+        <Button
+          variant="outline"
+          className="border-teal-600 text-teal-700 hover:bg-teal-50"
+          disabled={!!generating}
+          onClick={() => handleReport("Excel")}
+        >
+          {generating === "Excel" ? "Generating Excel…" : "Generate Excel Report"}
+        </Button>
         <Button variant="outline" onClick={() => router.push("/recommendations")}>View Recommendations</Button>
+        <Button variant="outline" onClick={() => router.push("/reports")}>View Reports</Button>
       </div>
     </div>
   );

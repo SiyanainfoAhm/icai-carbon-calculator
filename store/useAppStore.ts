@@ -24,11 +24,13 @@ import {
   validateSession,
 } from "@/lib/storage";
 import { createAuditLog } from "@/lib/audit";
-import { generateReportFromCalculation } from "@/lib/reportUtils";
+import { buildReportFromCalculation } from "@/lib/reportUtils";
+import { downloadReportFile } from "@/lib/reportExport";
 import { sumByScope } from "@/lib/calculationEngine";
 
 interface AppState {
   hydrated: boolean;
+  initError: string | null;
   session: Session | null;
   data: AppData;
   init: () => void;
@@ -47,6 +49,7 @@ interface AppState {
   addReport: (report: GeneratedReport) => void;
   deleteReport: (id: string) => void;
   generateReport: (calculationId: string, format: "PDF" | "Excel") => GeneratedReport | null;
+  downloadReport: (reportId: string) => boolean;
   // Recommendations
   updateRecommendationStatus: (id: string, status: Recommendation["status"]) => void;
   upsertRecommendation: (rec: Recommendation) => void;
@@ -55,8 +58,12 @@ interface AppState {
   deleteRecommendation: (id: string) => void;
   // Queries
   submitQuery: (query: Omit<HelpdeskQuery, "id" | "queryNumber" | "submittedDate" | "lastUpdated">) => void;
-  replyQuery: (queryId: string, reply: Omit<QueryReply, "id" | "createdAt">, status: HelpdeskQuery["status"]) => void;
-  updateQuery: (id: string, updates: Partial<HelpdeskQuery>) => void;
+  replyQuery: (
+    queryId: string,
+    reply: Omit<QueryReply, "id" | "createdAt">,
+    status: HelpdeskQuery["status"]
+  ) => void;
+  updateQuery: (id: string, updates: Partial<HelpdeskQuery>, auditStatusChange?: boolean) => void;
   // Users
   addUser: (user: Omit<User, "id" | "createdAt">) => void;
   updateUser: (id: string, updates: Partial<User>) => void;
@@ -79,16 +86,30 @@ function persist(state: AppState) {
 
 export const useAppStore = create<AppState>((set, get) => ({
   hydrated: false,
+  initError: null,
   session: null,
   data: {} as AppData,
 
   init: () => {
     if (get().hydrated) return;
-    const data = loadAppData();
-    const rawSession = loadSession();
-    const session = validateSession(rawSession, data.users);
-    if (rawSession && !session) clearSession();
-    set({ data, session, hydrated: true });
+    try {
+      const data = loadAppData();
+      const rawSession = loadSession();
+      const session = validateSession(rawSession, data.users);
+      if (rawSession && !session) clearSession();
+      set({ data, session, hydrated: true, initError: null });
+    } catch (err) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("[ICAI] App init failed:", err);
+      }
+      try {
+        const data = resetAppData();
+        clearSession();
+        set({ data, session: null, hydrated: true, initError: "recovered" });
+      } catch {
+        set({ hydrated: true, initError: "failed" });
+      }
+    }
   },
 
   login: (email, password, role) => {
@@ -188,7 +209,12 @@ export const useAppStore = create<AppState>((set, get) => ({
     const calculations = exists
       ? data.calculations.map((c) => (c.id === calc.id ? fullCalc : c))
       : [fullCalc, ...data.calculations];
-    const action = exists ? "Save Calculation" : "New Calculation";
+    const action =
+      fullCalc.status === "completed"
+        ? "Calculation Completed"
+        : exists
+          ? "Save Calculation"
+          : "New Calculation";
     const audit = createAuditLog(session, action, "Calculator", `${action}: ${fullCalc.id}`);
     const newData = { ...data, calculations, auditLogs: [audit, ...data.auditLogs] };
     saveAppData(newData);
@@ -221,11 +247,36 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   generateReport: (calculationId, format) => {
     const { session, data } = get();
+    if (!session) return null;
     const calc = data.calculations.find((c) => c.id === calculationId);
-    if (!calc || !session) return null;
-    const report = generateReportFromCalculation(calc, format, session.name);
-    get().addReport(report);
+    if (!calc) return null;
+    if (!calc.lineItems?.length) return null;
+    const recommendationsSummary = data.recommendations
+      .filter((r) => r.isActive)
+      .slice(0, 5)
+      .map((r) => r.title);
+    const report = buildReportFromCalculation(calc, format, session, recommendationsSummary);
+    const audit = createAuditLog(session, "Report Generated", "Reports", `${format} report ${report.id} for ${calc.id}`);
+    const newData = { ...data, reports: [report, ...data.reports], auditLogs: [audit, ...data.auditLogs] };
+    saveAppData(newData);
+    set({ data: newData });
     return report;
+  },
+
+  downloadReport: (reportId) => {
+    const { session, data } = get();
+    const report = data.reports.find((r) => r.id === reportId);
+    if (!report) return false;
+    try {
+      downloadReportFile(report);
+      const audit = createAuditLog(session, "Report Downloaded", "Reports", `${report.format} report ${report.id} exported`);
+      const newData = { ...data, auditLogs: [audit, ...data.auditLogs] };
+      saveAppData(newData);
+      set({ data: newData });
+      return true;
+    } catch {
+      return false;
+    }
   },
 
   updateRecommendationStatus: (id, status) => {
@@ -247,12 +298,13 @@ export const useAppStore = create<AppState>((set, get) => ({
     const recommendations = exists
       ? data.recommendations.map((r) => (r.id === rec.id ? { ...r, ...rec } : r))
       : [rec, ...data.recommendations];
-    const audit = createAuditLog(
-      session,
-      exists ? "Update Recommendation" : "Add Recommendation",
-      "Recommendations",
-      `${rec.title} — ${rec.status}`
-    );
+    const auditAction =
+      rec.status === "Implemented"
+        ? "Recommendation Marked Implemented"
+        : exists
+          ? "Update Recommendation"
+          : "Add Recommendation";
+    const audit = createAuditLog(session, auditAction, "Recommendations", `${rec.title} — ${rec.status}`);
     const newData = { ...data, recommendations, auditLogs: [audit, ...data.auditLogs] };
     saveAppData(newData);
     set({ data: newData });
@@ -283,35 +335,100 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   submitQuery: (query) => {
     const { session, data } = get();
-    const num = data.queries.length + 1;
+    if (!session) return;
+    const queries = data.queries ?? [];
+    const year = new Date().getFullYear();
+    const maxNum = queries.reduce((max, q) => {
+      const part = parseInt(q.queryNumber.split("-").pop() ?? "0", 10);
+      return Number.isFinite(part) ? Math.max(max, part) : max;
+    }, 0);
     const item: HelpdeskQuery = {
       ...query,
       id: `q-${Date.now()}`,
-      queryNumber: `HD-2024-${String(num).padStart(3, "0")}`,
+      queryNumber: `HD-${year}-${String(maxNum + 1).padStart(3, "0")}`,
+      userEmail: query.userEmail ?? session.email,
+      userRole: query.userRole ?? session.role,
+      entityType: query.entityType ?? (session.role === "ca_firm" ? "CA Firm" : session.role === "branch_office" ? "Branch Office" : session.role),
+      regionId: query.regionId ?? session.regionId,
+      regionName: query.regionName ?? session.regionName,
+      priority: query.priority ?? "Medium",
+      status: query.status ?? "Open",
       submittedDate: new Date().toISOString(),
       lastUpdated: new Date().toISOString(),
     };
-    const audit = createAuditLog(session, "Submit Query", "Helpdesk", `Query ${item.queryNumber} submitted`);
-    const newData = { ...data, queries: [item, ...data.queries], auditLogs: [audit, ...data.auditLogs] };
+    const audit = createAuditLog(
+      session,
+      "Helpdesk Query Submitted",
+      "Helpdesk",
+      `${item.queryNumber}: ${item.subject} (${item.id})`
+    );
+    const newData = { ...data, queries: [item, ...queries], auditLogs: [audit, ...data.auditLogs] };
     saveAppData(newData);
     set({ data: newData });
   },
 
   replyQuery: (queryId, reply, status) => {
     const { session, data } = get();
-    const item: QueryReply = { ...reply, id: `qr-${Date.now()}`, createdAt: new Date().toISOString() };
-    const queries = data.queries.map((q) =>
-      q.id === queryId ? { ...q, status, lastUpdated: new Date().toISOString() } : q
+    if (!session) return;
+    const now = new Date().toISOString();
+    const item: QueryReply = {
+      ...reply,
+      id: `qr-${Date.now()}`,
+      repliedByUserId: reply.repliedByUserId ?? session.userId,
+      repliedByEmail: reply.repliedByEmail ?? session.email,
+      createdAt: now,
+    };
+    const queries = (data.queries ?? []).map((q) =>
+      q.id === queryId
+        ? {
+            ...q,
+            status,
+            lastUpdated: now,
+            lastReply: reply.message,
+            repliedBy: reply.repliedBy,
+            repliedByUserId: item.repliedByUserId,
+            repliedByEmail: item.repliedByEmail,
+            repliedAt: now,
+            assignedTo: reply.repliedBy,
+          }
+        : q
     );
-    const audit = createAuditLog(session, "Reply Query", "Helpdesk", `Reply to query ${queryId}`);
-    const newData = { ...data, queries, queryReplies: [item, ...data.queryReplies], auditLogs: [audit, ...data.auditLogs] };
+    const audit = createAuditLog(
+      session,
+      "Helpdesk Query Replied",
+      "Helpdesk",
+      `Reply to ${queryId} — status: ${status}`
+    );
+    const newData = {
+      ...data,
+      queries,
+      queryReplies: [item, ...(data.queryReplies ?? [])],
+      auditLogs: [audit, ...data.auditLogs],
+    };
     saveAppData(newData);
     set({ data: newData });
   },
 
-  updateQuery: (id, updates) => {
-    const { data } = get();
-    const newData = { ...data, queries: data.queries.map((q) => (q.id === id ? { ...q, ...updates, lastUpdated: new Date().toISOString() } : q)) };
+  updateQuery: (id, updates, auditStatusChange = false) => {
+    const { session, data } = get();
+    const existing = (data.queries ?? []).find((q) => q.id === id);
+    if (!existing) return;
+    const queries = (data.queries ?? []).map((q) =>
+      q.id === id ? { ...q, ...updates, lastUpdated: new Date().toISOString() } : q
+    );
+    const statusChanged = updates.status && updates.status !== existing.status;
+    const auditLogs = [...data.auditLogs];
+    if (auditStatusChange && statusChanged && session) {
+      auditLogs.unshift(
+        createAuditLog(
+          session,
+          "Helpdesk Query Status Changed",
+          "Helpdesk",
+          `${existing.queryNumber} → ${updates.status} (${id})`
+        )
+      );
+    }
+    const newData = { ...data, queries, auditLogs };
     saveAppData(newData);
     set({ data: newData });
   },

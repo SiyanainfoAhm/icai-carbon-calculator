@@ -237,6 +237,8 @@ export interface GeneratedReport {
   regionName: string;
   reportingPeriod: string;
   generatedBy: string;
+  generatedByUserId?: string;
+  generatedByEmail?: string;
   generatedDate: string;
   format: ReportFormat;
   status: ReportStatus;
@@ -246,6 +248,8 @@ export interface GeneratedReport {
   scope3Total: number;
   calculationId?: string;
   categoryBreakdown: { category: string; co2e: number; scope: Scope }[];
+  lineItems?: CalculationLineItem[];
+  recommendationsSummary?: string[];
 }
 
 export interface Recommendation {
@@ -267,22 +271,35 @@ export interface HelpdeskQuery {
   queryNumber: string;
   userId: string;
   userName: string;
+  userEmail?: string;
+  userRole?: UserRole;
   entityId: string;
   entityName: string;
+  entityType?: EntityType | string;
+  regionId?: string;
+  regionName?: string;
   subject: string;
   category: string;
   message: string;
   status: QueryStatus;
+  priority?: RecommendationPriority;
   submittedDate: string;
   lastUpdated: string;
   assignedTo?: string;
   internalNote?: string;
+  lastReply?: string;
+  repliedBy?: string;
+  repliedByUserId?: string;
+  repliedByEmail?: string;
+  repliedAt?: string;
 }
 
 export interface QueryReply {
   id: string;
   queryId: string;
   repliedBy: string;
+  repliedByUserId?: string;
+  repliedByEmail?: string;
   message: string;
   isInternal: boolean;
   createdAt: string;

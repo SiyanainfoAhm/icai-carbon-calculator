@@ -22,9 +22,20 @@ export function RegionalDashboard() {
   const topImproved = [...branches].sort((a, b) => (a.totalEmissions - a.previousEmissions) - (b.totalEmissions - b.previousEmissions)).slice(0, 5);
 
   const handleExport = () => {
-    const report = generateRegionalReport(region.name, region.id, "FY 2024-25", region.totalEmissions, session?.name ?? "Regional Admin");
+    if (!session) {
+      toast.error("Session expired. Please log in again.");
+      return;
+    }
+    const report = generateRegionalReport(
+      region.name,
+      region.id,
+      "FY 2024-25",
+      region.totalEmissions,
+      session.name,
+      session
+    );
     addReport(report);
-    toast.success("Regional report generated");
+    toast.success("Regional report generated and saved to Reports");
   };
 
   return (
