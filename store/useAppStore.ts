@@ -22,10 +22,12 @@ import {
   saveSession,
   clearSession,
   validateSession,
+  DEFAULT_UI_SETTINGS,
 } from "@/lib/storage";
 import { createAuditLog } from "@/lib/audit";
 import { buildReportFromCalculation } from "@/lib/reportUtils";
 import { downloadReportFile } from "@/lib/reportExport";
+import { applyDesignTheme } from "@/lib/designTheme";
 import { sumByScope } from "@/lib/calculationEngine";
 
 interface AppState {
@@ -188,10 +190,19 @@ export const useAppStore = create<AppState>((set, get) => ({
   exportData: () => JSON.stringify(get().data, null, 2),
 
   updateUISettings: (settings) => {
-    const { data } = get();
-    const newData = { ...data, uiSettings: { ...data.uiSettings, ...settings } };
-    persist({ ...get(), data: newData });
+    const { session, data } = get();
+    const uiSettings = { ...DEFAULT_UI_SETTINGS, ...data.uiSettings, ...settings };
+    let newData = { ...data, uiSettings };
+    if (settings.selectedDesign && session) {
+      const themeName = settings.selectedDesign.replace(/_/g, " ");
+      const audit = createAuditLog(session, "Design Theme Selected", "Settings", `Theme: ${themeName}`);
+      newData = { ...newData, auditLogs: [audit, ...data.auditLogs] };
+    }
+    saveAppData(newData);
     set({ data: newData });
+    if (settings.selectedDesign) {
+      applyDesignTheme(settings.selectedDesign);
+    }
   },
 
   saveCalculation: (calc) => {

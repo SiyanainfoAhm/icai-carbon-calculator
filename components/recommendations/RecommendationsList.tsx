@@ -66,10 +66,10 @@ export function RecommendationsList({ adminMode = false }: { adminMode?: boolean
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground mb-3">{rec.description}</p>
-            <p className="text-sm font-medium text-teal-700">Est. savings: {rec.estimatedSavings} kg CO2e/year</p>
+            <p className="text-sm font-medium text-primary">Est. savings: {rec.estimatedSavings} kg CO2e/year</p>
             <div className="flex flex-wrap gap-2 mt-3">
               {!adminMode && rec.status !== "Implemented" && (
-                <Button size="sm" className="bg-teal-600" onClick={() => handleMarkImplemented(rec)}>
+                <Button size="sm" className="bg-primary" onClick={() => handleMarkImplemented(rec)}>
                   <CheckCircle className="h-4 w-4 mr-1" /> Mark Implemented
                 </Button>
               )}

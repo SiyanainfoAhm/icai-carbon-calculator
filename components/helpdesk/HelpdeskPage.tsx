@@ -128,7 +128,7 @@ export function HelpdeskPage({ adminMode = false }: { adminMode?: boolean }) {
                 <Label>Message *</Label>
                 <Textarea value={message} onChange={(e) => setMessage(e.target.value)} required rows={4} placeholder="Describe your question in detail" />
               </div>
-              <Button type="submit" className="bg-teal-600 hover:bg-teal-700 w-full sm:w-auto">
+              <Button type="submit" className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
                 Submit Query
               </Button>
             </form>
@@ -184,7 +184,7 @@ export function HelpdeskPage({ adminMode = false }: { adminMode?: boolean }) {
         <EmptyState
           title="No helpdesk queries submitted yet"
           description="Queries submitted from Helpdesk will appear here for review and reply."
-          icon={<MessageSquare className="h-8 w-8 text-teal-500" />}
+          icon={<MessageSquare className="h-8 w-8 text-primary" />}
         />
       ) : (
         <DataTable
@@ -242,7 +242,7 @@ export function HelpdeskPage({ adminMode = false }: { adminMode?: boolean }) {
               {(data.queryReplies ?? [])
                 .filter((r) => r.queryId === viewQuery.id && !r.isInternal)
                 .map((r) => (
-                  <div key={r.id} className="rounded-lg border border-teal-100 bg-teal-50/50 p-3">
+                  <div key={r.id} className="rounded-lg border border-teal-100 bg-primary/10/50 p-3">
                     <p className="font-medium">{r.repliedBy}</p>
                     <p className="mt-1 whitespace-pre-wrap">{r.message}</p>
                     <p className="text-xs text-muted-foreground mt-2">{new Date(r.createdAt).toLocaleString()}</p>
@@ -263,7 +263,7 @@ export function HelpdeskPage({ adminMode = false }: { adminMode?: boolean }) {
                   </SelectContent>
                 </Select>
               </div>
-              <Button className="bg-teal-600 hover:bg-teal-700 w-full" onClick={handleAdminSave}>
+              <Button className="bg-primary hover:bg-primary/90 w-full" onClick={handleAdminSave}>
                 Save Reply &amp; Update Status
               </Button>
             </div>

@@ -28,7 +28,7 @@ export function MobileNav() {
   return (
     <div className="flex flex-col h-full bg-slate-900">
       <div className="p-5 border-b border-white/10">
-        <CarbonLogo size="sm" className="[&_p]:text-white [&_p:last-child]:text-teal-300" />
+        <CarbonLogo size="sm" className="[&_p]:text-white [&_p:last-child]:text-theme-light" />
       </div>
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
@@ -40,7 +40,7 @@ export function MobileNav() {
               href={item.href}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium",
-                isActive ? "bg-teal-600 text-white" : "text-slate-300 hover:bg-white/10"
+                isActive ? "bg-sidebar-primary text-sidebar-primary-foreground" : "text-slate-300 hover:bg-white/10"
               )}
             >
               <Icon className="h-4 w-4 shrink-0" />

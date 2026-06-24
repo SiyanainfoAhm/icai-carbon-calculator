@@ -40,7 +40,7 @@ export function UsersAdmin() {
     <div className="space-y-6">
       <div className="flex justify-between">
         <div><h1 className="text-2xl font-bold">User Management</h1></div>
-        <Button className="bg-teal-600" onClick={() => { setEditUser(null); setForm({ name: "", email: "", password: "demo123", role: "ca_firm", entityName: "", regionName: "Northern Region", status: "active" }); setOpen(true); }}>
+        <Button className="bg-primary" onClick={() => { setEditUser(null); setForm({ name: "", email: "", password: "demo123", role: "ca_firm", entityName: "", regionName: "Northern Region", status: "active" }); setOpen(true); }}>
           <Plus className="h-4 w-4 mr-1" /> Add User
         </Button>
       </div>
@@ -81,7 +81,7 @@ export function UsersAdmin() {
                 <SelectContent>{(Object.keys(ROLE_LABELS) as UserRole[]).map((r) => <SelectItem key={r} value={r}>{ROLE_LABELS[r]}</SelectItem>)}</SelectContent>
               </Select>
             </div>
-            <Button className="w-full bg-teal-600" onClick={handleSave}>Save</Button>
+            <Button className="w-full bg-primary" onClick={handleSave}>Save</Button>
           </div>
         </DialogContent>
       </Dialog>

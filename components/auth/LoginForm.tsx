@@ -85,7 +85,7 @@ export function LoginForm() {
                 </SelectContent>
               </Select>
             </div>
-            <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700">Demo Login</Button>
+            <Button type="submit" className="w-full bg-primary hover:bg-primary/90">Demo Login</Button>
           </form>
         </CardContent>
       </Card>
@@ -97,10 +97,10 @@ export function LoginForm() {
             <button
               key={demo.role}
               onClick={() => quickLogin(demo.role, demo.email)}
-              className="flex items-center gap-3 rounded-xl border bg-white p-4 text-left shadow-sm hover:shadow-md hover:border-teal-300 transition-all"
+              className="flex items-center gap-3 rounded-xl border bg-white p-4 text-left shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
             >
-              <div className="rounded-lg bg-teal-50 p-2">
-                <Icon className="h-5 w-5 text-teal-600" />
+              <div className="rounded-lg bg-primary/10 p-2">
+                <Icon className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="text-sm font-semibold">{demo.label}</p>

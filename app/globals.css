@@ -81,6 +81,91 @@
   --sidebar-accent-foreground: oklch(0.95 0 0);
   --sidebar-border: oklch(0.3 0.03 220);
   --sidebar-ring: oklch(0.55 0.14 175);
+  --primary-light: #5eead4;
+  --primary-muted: #ccfbf1;
+}
+
+/* Design theme overrides — applied via data-design-theme on <html> */
+[data-design-theme="modern_esg"] {
+  --primary: #0d9488;
+  --primary-foreground: #ffffff;
+  --ring: #0d9488;
+  --accent: #ccfbf1;
+  --accent-foreground: #134e4a;
+  --sidebar-primary: #0d9488;
+  --sidebar-ring: #0d9488;
+  --chart-1: #0d9488;
+  --primary-light: #5eead4;
+  --primary-muted: #ccfbf1;
+}
+
+[data-design-theme="sustainability_green"] {
+  --primary: #059669;
+  --primary-foreground: #ffffff;
+  --ring: #059669;
+  --accent: #d1fae5;
+  --accent-foreground: #064e3b;
+  --sidebar-primary: #059669;
+  --sidebar-ring: #059669;
+  --chart-1: #059669;
+  --primary-light: #34d399;
+  --primary-muted: #d1fae5;
+}
+
+[data-design-theme="institutional_blue"] {
+  --primary: #1e40af;
+  --primary-foreground: #ffffff;
+  --ring: #1e40af;
+  --accent: #dbeafe;
+  --accent-foreground: #1e3a8a;
+  --sidebar-primary: #2563eb;
+  --sidebar-ring: #2563eb;
+  --chart-1: #1e40af;
+  --primary-light: #60a5fa;
+  --primary-muted: #dbeafe;
+}
+
+[data-design-theme="minimal_corporate"] {
+  --primary: #374151;
+  --primary-foreground: #ffffff;
+  --ring: #374151;
+  --accent: #f3f4f6;
+  --accent-foreground: #111827;
+  --sidebar-primary: #4b5563;
+  --sidebar-ring: #4b5563;
+  --chart-1: #374151;
+  --primary-light: #9ca3af;
+  --primary-muted: #f3f4f6;
+}
+
+[data-design-theme="premium_dashboard"] {
+  --primary: #7c3aed;
+  --primary-foreground: #ffffff;
+  --ring: #7c3aed;
+  --accent: #ede9fe;
+  --accent-foreground: #4c1d95;
+  --sidebar-primary: #7c3aed;
+  --sidebar-ring: #7c3aed;
+  --chart-1: #7c3aed;
+  --primary-light: #a78bfa;
+  --primary-muted: #ede9fe;
+}
+
+@layer utilities {
+  .bg-portal-page {
+    background: linear-gradient(
+      to bottom right,
+      var(--background),
+      color-mix(in srgb, var(--primary) 7%, white),
+      color-mix(in srgb, var(--primary) 4%, white)
+    );
+  }
+  .text-theme-light {
+    color: var(--primary-light);
+  }
+  .shadow-theme {
+    box-shadow: 0 10px 15px -3px color-mix(in srgb, var(--primary) 25%, transparent);
+  }
 }
 
 @layer base {

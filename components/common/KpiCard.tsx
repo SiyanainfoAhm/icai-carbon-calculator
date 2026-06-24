@@ -18,8 +18,8 @@ export function KpiCard({ title, value, subtitle, icon: Icon, trend, className, 
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
         {Icon && (
-          <div className={cn("rounded-lg bg-teal-50 p-2", iconClassName)}>
-            <Icon className="h-4 w-4 text-teal-600" />
+          <div className={cn("rounded-lg bg-primary/10 p-2", iconClassName)}>
+            <Icon className="h-4 w-4 text-primary" />
           </div>
         )}
       </CardHeader>

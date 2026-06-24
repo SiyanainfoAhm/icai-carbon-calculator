@@ -103,7 +103,7 @@ export function DataTable<T extends Record<string, unknown>>({
               return (
               <TableRow
                 key={rowKey}
-                className={onRowClick ? "cursor-pointer hover:bg-teal-50/50" : ""}
+                className={onRowClick ? "cursor-pointer hover:bg-primary/10" : ""}
                 onClick={() => onRowClick?.(item)}
               >
                 {columns.map((col) => (

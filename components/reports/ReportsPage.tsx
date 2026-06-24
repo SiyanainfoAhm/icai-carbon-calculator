@@ -73,10 +73,10 @@ export function ReportsPage() {
         <EmptyState
           title="No reports generated yet"
           description="Complete a calculation to generate PDF/Excel reports."
-          icon={<FileText className="h-8 w-8 text-teal-500" />}
+          icon={<FileText className="h-8 w-8 text-primary" />}
           action={
             ["ca_firm", "branch_office"].includes(session?.role ?? "") ? (
-              <Button className="bg-teal-600" asChild>
+              <Button className="bg-primary" asChild>
                 <Link href="/calculator">New Calculation</Link>
               </Button>
             ) : undefined
@@ -120,9 +120,13 @@ export function ReportsPage() {
       )}
 
       <Dialog open={!!preview} onOpenChange={(open) => !open && setPreview(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>Report Preview</DialogTitle></DialogHeader>
-          {preview && <ReportPreview report={preview} />}
+        <DialogContent className="flex w-[min(1100px,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] sm:max-w-[min(1100px,calc(100vw-2rem))] max-h-[92vh] flex-col gap-0 overflow-hidden p-0">
+          <DialogHeader className="shrink-0 border-b px-6 py-4">
+            <DialogTitle>Report Preview</DialogTitle>
+          </DialogHeader>
+          <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-6 py-4">
+            {preview && <ReportPreview report={preview} embedded />}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

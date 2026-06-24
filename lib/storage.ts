@@ -5,7 +5,7 @@ const STORAGE_KEY = "icai_carbon_app_data";
 const SESSION_KEY = "icai_carbon_session";
 const STORAGE_VERSION = 1;
 
-const DEFAULT_UI_SETTINGS: UISettings = {
+export const DEFAULT_UI_SETTINGS: UISettings = {
   selectedDesign: "modern_esg",
   portalName: "ICAI Carbon Emission Calculator",
   maintenanceMode: false,

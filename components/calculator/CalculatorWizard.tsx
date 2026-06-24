@@ -182,7 +182,7 @@ export function CalculatorWizard({ existingId }: { existingId?: string }) {
           <CardHeader><CardTitle>Select Emission Categories</CardTitle></CardHeader>
           <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {data.emissionCategories.map((cat) => (
-              <label key={cat.id} className="flex items-center gap-3 rounded-lg border p-3 cursor-pointer hover:bg-teal-50/50">
+              <label key={cat.id} className="flex items-center gap-3 rounded-lg border p-3 cursor-pointer hover:bg-primary/10">
                 <Checkbox checked={selectedCategories.includes(cat.id)} onCheckedChange={() => toggleCategory(cat.id)} />
                 <div>
                   <p className="font-medium text-sm">{cat.name}</p>
@@ -207,7 +207,7 @@ export function CalculatorWizard({ existingId }: { existingId?: string }) {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base flex justify-between">
                     {config.label}
-                    <span className="text-teal-600 text-sm">{co2e.toFixed(2)} kg CO2e</span>
+                    <span className="text-primary text-sm">{co2e.toFixed(2)} kg CO2e</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -266,7 +266,7 @@ export function CalculatorWizard({ existingId }: { existingId?: string }) {
               ))}
               <div className="flex justify-between font-bold pt-2">
                 <span>Total</span>
-                <span className="text-teal-600">{sumByScope(buildItemsFromForms()).total.toFixed(2)} kg CO2e</span>
+                <span className="text-primary">{sumByScope(buildItemsFromForms()).total.toFixed(2)} kg CO2e</span>
               </div>
             </div>
           </CardContent>
@@ -281,8 +281,8 @@ export function CalculatorWizard({ existingId }: { existingId?: string }) {
         <Button variant="outline" disabled={step === 0} onClick={() => setStep(step - 1)}>Previous</Button>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleSaveDraft}><Save className="h-4 w-4 mr-1" /> Save Draft</Button>
-          {step < 4 && <Button className="bg-teal-600 hover:bg-teal-700" onClick={() => setStep(step + 1)}>Next</Button>}
-          {step === 4 && <Button className="bg-teal-600 hover:bg-teal-700" onClick={handleComplete}>Calculate</Button>}
+          {step < 4 && <Button className="bg-primary hover:bg-primary/90" onClick={() => setStep(step + 1)}>Next</Button>}
+          {step === 4 && <Button className="bg-primary hover:bg-primary/90" onClick={handleComplete}>Calculate</Button>}
           {step === 5 && <Button variant="outline" onClick={() => router.push("/history")}>View History</Button>}
         </div>
       </div>
@@ -327,11 +327,11 @@ function ResultsPanel({ calcId, items, totals, reportingPeriod }: {
 
   return (
     <div className="space-y-4">
-      <Card className="bg-gradient-to-br from-teal-600 to-emerald-700 text-white border-0">
+      <Card className="bg-gradient-to-br from-primary to-primary/80 text-white border-0">
         <CardContent className="pt-6 text-center">
-          <p className="text-teal-100">Total Carbon Footprint</p>
+          <p className="text-primary-foreground/80">Total Carbon Footprint</p>
           <p className="text-4xl font-bold mt-1">{totals.total.toLocaleString()} kg CO₂e</p>
-          <p className="text-teal-200 text-sm mt-1">{reportingPeriod}</p>
+          <p className="text-primary-foreground/70 text-sm mt-1">{reportingPeriod}</p>
         </CardContent>
       </Card>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -341,7 +341,7 @@ function ResultsPanel({ calcId, items, totals, reportingPeriod }: {
       </div>
       <div className="flex flex-wrap gap-2">
         <Button
-          className="bg-teal-600 hover:bg-teal-700 text-white"
+          className="bg-primary hover:bg-primary/90 text-white"
           disabled={!!generating}
           onClick={() => handleReport("PDF")}
         >
@@ -349,7 +349,7 @@ function ResultsPanel({ calcId, items, totals, reportingPeriod }: {
         </Button>
         <Button
           variant="outline"
-          className="border-teal-600 text-teal-700 hover:bg-teal-50"
+          className="border-primary text-primary hover:bg-primary/10"
           disabled={!!generating}
           onClick={() => handleReport("Excel")}
         >

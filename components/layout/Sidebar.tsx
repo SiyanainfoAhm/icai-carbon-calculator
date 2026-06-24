@@ -29,7 +29,7 @@ export function Sidebar() {
   return (
     <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r bg-gradient-to-b from-slate-900 to-slate-800 text-white h-screen sticky top-0">
       <div className="p-5 border-b border-white/10 shrink-0">
-        <CarbonLogo size="sm" className="[&_p]:text-white [&_p:last-child]:text-teal-300" />
+        <CarbonLogo size="sm" className="[&_p]:text-white [&_p:last-child]:text-theme-light" />
       </div>
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
@@ -42,7 +42,7 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-teal-600 text-white shadow-lg shadow-teal-900/30"
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-lg shadow-theme"
                   : "text-slate-300 hover:bg-white/10 hover:text-white"
               )}
             >

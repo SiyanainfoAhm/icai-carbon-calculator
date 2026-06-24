@@ -63,7 +63,7 @@ export function EmissionFactorsAdmin() {
           <div className="space-y-3">
             <div><Label>New Emission Factor</Label><Input type="number" step="0.01" value={newValue} onChange={(e) => setNewValue(e.target.value)} /></div>
             <div><Label>Reason for Change *</Label><Textarea value={reason} onChange={(e) => setReason(e.target.value)} /></div>
-            <Button className="w-full bg-teal-600" onClick={handleSave}>Save & Create Version</Button>
+            <Button className="w-full bg-primary" onClick={handleSave}>Save & Create Version</Button>
           </div>
         </DialogContent>
       </Dialog>

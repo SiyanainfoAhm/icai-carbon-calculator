@@ -71,7 +71,7 @@ export function ProfileForm() {
             <Label>Address</Label>
             <Textarea value={profile.address} onChange={(e) => setProfile({ ...profile, address: e.target.value })} />
           </div>
-          <Button className="bg-teal-600" onClick={handleSave}>Save Profile</Button>
+          <Button className="bg-primary" onClick={handleSave}>Save Profile</Button>
         </CardContent>
       </Card>
     </div>

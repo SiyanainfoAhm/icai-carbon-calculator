@@ -10,7 +10,16 @@ import { Printer, Download } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { toast } from "sonner";
 
-export function ReportPreview({ report, showActions = true }: { report: GeneratedReport; showActions?: boolean }) {
+export function ReportPreview({
+  report,
+  showActions = true,
+  embedded = false,
+}: {
+  report: GeneratedReport;
+  showActions?: boolean;
+  /** Full-width layout for modal preview */
+  embedded?: boolean;
+}) {
   const downloadReport = useAppStore((s) => s.downloadReport);
   const lineItems = report.lineItems ?? [];
 
@@ -28,8 +37,11 @@ export function ReportPreview({ report, showActions = true }: { report: Generate
   };
 
   return (
-    <Card className="max-w-3xl mx-auto border-2" id={`report-preview-${report.id}`}>
-      <CardContent className="p-8 space-y-6">
+    <Card
+      className={embedded ? "w-full border-0 shadow-none" : "max-w-3xl mx-auto border-2"}
+      id={`report-preview-${report.id}`}
+    >
+      <CardContent className={embedded ? "p-2 sm:p-4 space-y-6" : "p-8 space-y-6"}>
         <div className="flex items-center justify-between gap-4">
           <CarbonLogo />
           <div className="text-right text-sm text-muted-foreground">
@@ -53,9 +65,9 @@ export function ReportPreview({ report, showActions = true }: { report: Generate
           <div><span className="text-muted-foreground">Report ID:</span> <strong>{report.id}</strong></div>
           <div><span className="text-muted-foreground">Date:</span> <strong>{new Date(report.generatedDate).toLocaleString()}</strong></div>
         </div>
-        <div className="rounded-lg bg-teal-50 p-4 text-center">
-          <p className="text-sm text-teal-700">Total CO₂e Footprint</p>
-          <p className="text-3xl font-bold text-teal-800">{report.totalCo2e.toLocaleString()} kg</p>
+        <div className="rounded-lg bg-primary/10 p-4 text-center">
+          <p className="text-sm text-primary">Total CO₂e Footprint</p>
+          <p className="text-3xl font-bold text-primary">{report.totalCo2e.toLocaleString()} kg</p>
         </div>
         <div>
           <h3 className="font-semibold mb-2">Scope-wise Summary</h3>
@@ -117,7 +129,7 @@ export function ReportPreview({ report, showActions = true }: { report: Generate
         <p className="text-xs text-muted-foreground italic"><strong>Disclaimer:</strong> {REPORT_DISCLAIMER}</p>
         {showActions && (
           <div className="flex flex-wrap gap-2 pt-2">
-            <Button className="bg-teal-600 hover:bg-teal-700" onClick={handleDownload}>
+            <Button className="bg-primary hover:bg-primary/90" onClick={handleDownload}>
               <Download className="h-4 w-4 mr-1" />
               {report.format === "Excel" ? "Download CSV (Excel)" : "Print / Save as PDF"}
             </Button>

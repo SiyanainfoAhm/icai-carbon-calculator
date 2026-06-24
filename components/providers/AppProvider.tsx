@@ -4,10 +4,14 @@ import { useEffect, useState } from "react";
 import { useAppStore } from "@/store/useAppStore";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
+import { DesignThemeProvider } from "@/components/providers/DesignThemeProvider";
+import { applyDesignTheme } from "@/lib/designTheme";
 
 function hydrateStore() {
   if (typeof window !== "undefined" && !useAppStore.getState().hydrated) {
     useAppStore.getState().init();
+    const { data } = useAppStore.getState();
+    applyDesignTheme(data.uiSettings?.selectedDesign);
   }
 }
 
@@ -76,9 +80,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <>
+    <DesignThemeProvider>
       {children}
       <Toaster richColors position="top-right" />
-    </>
+    </DesignThemeProvider>
   );
 }

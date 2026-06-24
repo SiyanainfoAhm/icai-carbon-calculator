@@ -45,7 +45,7 @@ export function RegionalDashboard() {
           <h1 className="text-2xl font-bold">Regional Dashboard</h1>
           <p className="text-muted-foreground">{region.name}</p>
         </div>
-        <Button onClick={handleExport} className="bg-teal-600 hover:bg-teal-700">Export Regional Report</Button>
+        <Button onClick={handleExport} className="bg-primary hover:bg-primary/90">Export Regional Report</Button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

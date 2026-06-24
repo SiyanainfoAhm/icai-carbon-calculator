@@ -45,12 +45,12 @@ export function Header() {
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-4 w-4" />
-          <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-teal-500" />
+          <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary/100" />
         </Button>
         <div className="hidden sm:flex flex-col items-end text-right">
           <span className="text-sm font-medium">{session.name}</span>
           <div className="flex items-center gap-1.5">
-            <Badge variant="secondary" className="text-[10px] bg-teal-50 text-teal-700">{ROLE_LABELS[session.role]}</Badge>
+            <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary">{ROLE_LABELS[session.role]}</Badge>
             <span className="text-xs text-muted-foreground truncate max-w-[150px]">{session.entityName}</span>
           </div>
         </div>
@@ -58,7 +58,7 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-9 w-9 rounded-full">
               <Avatar className="h-9 w-9">
-                <AvatarFallback className="bg-teal-100 text-teal-700 text-xs">{initials}</AvatarFallback>
+                <AvatarFallback className="bg-primary/15 text-primary text-xs">{initials}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>

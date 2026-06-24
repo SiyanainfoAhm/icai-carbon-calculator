@@ -26,19 +26,19 @@ export function Stepper({ steps, currentStep, className }: StepperProps) {
                 <div
                   className={cn(
                     "flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors",
-                    isComplete && "border-teal-600 bg-teal-600 text-white",
-                    isCurrent && "border-teal-600 bg-teal-50 text-teal-700",
+                    isComplete && "border-primary bg-primary text-white",
+                    isCurrent && "border-primary bg-primary/10 text-primary",
                     !isComplete && !isCurrent && "border-slate-200 bg-white text-slate-400"
                   )}
                 >
                   {isComplete ? <Check className="h-5 w-5" /> : index + 1}
                 </div>
-                <span className={cn("mt-2 text-xs font-medium text-center max-w-[80px]", isCurrent ? "text-teal-700" : "text-muted-foreground")}>
+                <span className={cn("mt-2 text-xs font-medium text-center max-w-[80px]", isCurrent ? "text-primary" : "text-muted-foreground")}>
                   {step.title}
                 </span>
               </div>
               {index < steps.length - 1 && (
-                <div className={cn("h-0.5 flex-1 mx-2", isComplete ? "bg-teal-600" : "bg-slate-200")} />
+                <div className={cn("h-0.5 flex-1 mx-2", isComplete ? "bg-primary" : "bg-slate-200")} />
               )}
             </li>
           );

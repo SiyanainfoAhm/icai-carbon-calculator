@@ -44,7 +44,7 @@ export function EntityAdmin({ title, dataKey, columns }: EntityAdminProps) {
     <div className="space-y-6">
       <div className="flex justify-between">
         <h1 className="text-2xl font-bold">{title}</h1>
-        <Button className="bg-teal-600" onClick={() => setOpen(true)}><Plus className="h-4 w-4 mr-1" /> Add</Button>
+        <Button className="bg-primary" onClick={() => setOpen(true)}><Plus className="h-4 w-4 mr-1" /> Add</Button>
       </div>
       <DataTable
         data={items as unknown as Record<string, unknown>[]}
@@ -80,7 +80,7 @@ export function EntityAdmin({ title, dataKey, columns }: EntityAdminProps) {
             <div><Label>Name</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
             <div><Label>Location</Label><Input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} /></div>
             <div><Label>Email</Label><Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
-            <Button className="w-full bg-teal-600" onClick={handleAdd}>Save</Button>
+            <Button className="w-full bg-primary" onClick={handleAdd}>Save</Button>
           </div>
         </DialogContent>
       </Dialog>
